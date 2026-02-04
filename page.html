@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>JustNeychii's Webpage</title>
+
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0"
+            rel="stylesheet"
+        />
+
+        <link rel="stylesheet" href="style.css" type="text/css" media="all" />
+    </head>
+
+    <body>
+        <div id="page">
+            <!-- HERO -->
+            <section class="hero">
+                <div class="banner">
+                    <img src="./../assets/web/banner.png" />
+                </div>
+
+                <div class="profile-wrap">
+                    <div class="pfp">
+                        <img src="./../assets/web/avatar.jpg" />
+                    </div>
+                    <h1>JustNeychii</h1>
+                    <div class="tagline">Your fav wild purple cat 💜</div>
+                </div>
+            </section>
+
+            <!-- MUSIC -->
+            <audio id="bgm" autoplay loop>
+                <source src="./../assets/audio.mp3" />
+            </audio>
+
+            <div class="music-bar">
+                <div
+                    id="musicToggle"
+                    class="music-btn material-symbols-rounded"
+                >
+                    pause
+                </div>
+
+                <div class="marquee-wrap">
+                    <div
+                        class="marquee"
+                        onclick="window.open('https://soundcloud.com/luvbytes404/despite-everything-it-is-still-me')"
+                    >
+                        <span>Despite Everything, It Is Still Me</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualizer-wrap">
+                <canvas id="visualizer"></canvas>
+            </div>
+
+            <!-- CONTENT -->
+            <main class="container">
+                <div class="card">
+                    <h2>About Me</h2>
+                    <ul>
+                        <li>Name: Neychii</li>
+                        <li>Age: 19 / 6th November</li>
+                        <li>Height / Weight: 164cm / 42kg</li>
+                        <li>Pronouns: Femboy / Failure</li>
+                        <li>EN & ID</li>
+                    </ul>
+                </div>
+
+                <div class="split">
+                    <div class="card loves">
+                        <h2>Loves</h2>
+                        <ul>
+                            <li>Music</li>
+                            <li>Cats</li>
+                            <li>Tea & memes</li>
+                        </ul>
+                    </div>
+                    <div class="card hates">
+                        <h2>Hates</h2>
+                        <ul>
+                            <li>Insects</li>
+                            <li>IRL interaction</li>
+                            <li>Hard work</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="social-btn" id="openSocials">My Socials</button>
+                <footer>Made with love by Jnych4n ✦ <br>All Rights Reserved © 2026 JustNeychii</footer>
+            </main>
+        </div>
+
+        <!-- SOCIAL POPUP -->
+        <div class="social-overlay" id="socialOverlay">
+            <div class="social-modal">
+                <h3 class="social-title">My Socials</h3>
+
+                <div class="social-links">
+                    <a href="#">Discord</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Ko-fi</a>
+                    <a href="#">Fansly</a>
+                    <a href="#">VRChat</a>
+                </div>
+            </div>
+        </div>
+        
+        <img src="./../assets/web/Mascot1.png" id="mascot" alt="Mascot Bwahh" />
+
+        <script src="script.js"></script>
+    </body>
+</html>
