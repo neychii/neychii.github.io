@@ -196,8 +196,8 @@ window.addEventListener("load", () => {
 const mascot = document.getElementById("mascot");
 
 // Save original and alternate image URLs
-const originalSrc = "./../assets/web/Mascot1.png";
-const alternateSrc = "./../assets/web/mascot2.png";
+const originalSrc = "Mascot1.png";
+const alternateSrc = "mascot2.png";
 
 let clickCount = 0;
 
