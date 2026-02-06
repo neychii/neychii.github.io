@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <title>JustNeychii</title>
+        <link rel="icon" href="./Assets/Images/mascot1.png" type="image/png" />
+        <meta
+            name="description"
+            content="JustNeychii's Social links and About me Webpage"
+        />
+
+        <!-- Discord / Open Graph -->
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="JustNeychii's Webpage" />
+        <meta
+            property="og:description"
+            content="A webpage for neychii's social links and about me."
+        />
+        <meta property="og:url" content="https://neychii.github.io" />
+        <meta
+            property="og:image"
+            content="https://cdn.discordapp.com/attachments/1401128958799511654/1468510353804628010/IMG_20260202_183453.png.jpg?ex=69844857&is=6982f6d7&hm=e11895873174c453b6841b8a75ee885cca4f59f3cf66686b3d1f2c64859beaff&"
+        />
+
+        <!-- Color bar -->
+        <meta name="theme-color" content="#883ff8" />
+
+        <!-- Twitter (used by Discord too) -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="JustNeychii" />
+        <meta
+            name="twitter:description"
+            content="Your fav wild purple cat 💜"
+        />
+        <meta
+            name="twitter:image"
+            content="https://cdn.discordapp.com/attachments/1401128958799511654/1468510353330540637/New_Project_5_D36DFA4.jpg?ex=69844857&is=6982f6d7&hm=f032a478b626147bb90e381254c0dcfa681855133cc1e7828cef7a0574157315&"
+        />
+
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0"
+            rel="stylesheet"
+        />
+
+        <link rel="stylesheet" href="style.css" type="text/css" media="all" />
+    </head>
+
+    <body>
+        <div id="page">
+            <!-- HERO -->
+            <section class="hero">
+                <div class="banner">
+                    <img src="./Assets/Images/banner.png" />
+                </div>
+
+                <div class="profile-wrap">
+                    <div class="pfp">
+                        <img src="./Assets/Images/avatar.jpg" />
+                    </div>
+                    <h1>JustNeychii</h1>
+                    <div class="tagline">Your fav wild purple cat 💜</div>
+                </div>
+            </section>
+
+            <!-- MUSIC -->
+            <audio id="bgm" autoplay>
+                <source src="./Assets/Audios/audio.mp3" />
+            </audio>
+
+            <div class="music-bar">
+                <div
+                    id="musicToggle"
+                    class="music-btn material-symbols-rounded"
+                >
+                    pause
+                </div>
+
+                <div class="marquee">
+                    <div class="marquee-inner">
+                        <div class="marquee-track">
+                            <span class="marquee-title">
+                                Despite Everything, It Is Still Me
+                            </span>
+                        </div>
+
+                        <span class="marquee-artist">LuvBytes404</span>
+                    </div>
+                </div>
+
+                <div
+                    id="nextTrack"
+                    class="music-btn material-symbols-rounded"
+                    title="Next track"
+                >
+                    skip_next
+                </div>
+            </div>
+
+            <div class="visualizer-wrap">
+                <canvas id="visualizer"></canvas>
+            </div>
+
+            <!-- CONTENT -->
+            <main class="container">
+                <div class="card">
+                    <h2>About Me</h2>
+                    <ul>
+                        <li>Name: Neychii</li>
+                        <li>Age: 19 / 6th November</li>
+                        <li>Height / Weight: 164cm / 42kg</li>
+                        <li>Pronouns: Femboy / Failure</li>
+                        <li>EN & ID</li>
+                    </ul>
+                </div>
+
+                <div class="split">
+                    <div class="card loves">
+                        <h2>Loves</h2>
+                        <ul>
+                            <li>Music</li>
+                            <li>Cats</li>
+                            <li>Tea & memes</li>
+                            <li>Sweet & spicy foods</li>
+                        </ul>
+                    </div>
+                    <div class="card hates">
+                        <h2>Hates</h2>
+                        <ul>
+                            <li>Insects</li>
+                            <li>Disgusting foods</li>
+                            <li>IRL interaction</li>
+                            <li>Hard work</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button class="social-btn" id="openSocials">My Socials</button>
+                <footer>
+                    Made with love by Jnych4n ✦ <br />All Rights Reserved © 2026
+                    JustNeychii
+                </footer>
+            </main>
+        </div>
+
+        <!-- SOCIAL POPUP -->
+        <div class="social-overlay" id="socialOverlay">
+            <div class="social-modal">
+                <h3 class="social-title">My Socials</h3>
+
+                <div class="social-links">
+                    <a href="#">Discord</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Ko-fi</a>
+                    <a href="#">Fansly</a>
+                    <a href="#">VRChat</a>
+                </div>
+            </div>
+        </div>
+
+        <img src="./Assets/Images/mascot1.png" id="mascot" alt="Mascot Bwahh" />
+
+        <script src="script.js"></script>
+    </body>
+</html>
