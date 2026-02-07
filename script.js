@@ -391,9 +391,18 @@ matureContinue.onclick = () => {
 
 const statuses = [
 	"It is what it is",
-	"Finishing Shinaney Avatar",
-	"Initiating Aze-chii Avatar",
-	"Listening to Dance, Dance by fall ouy boy"
+	"Remind me to tweak my Shinaners",
+	"Omw for avatar with azuki base :D",
+	"Enjoys the songs :3",
+	"When creativity peaked is also when my executive dysfunction shows itself",
+	"Always stuck on setup. when will i be great?",
+	"I am inspired... Unfortunately my bed and gravity wins...",
+	"20% Building, 80% Procrastination TwT",
+	"I SWEAR I WAS PRODUCTIVE! (At least mentally) XD",
+	"Im not built different, im just assembled incorrectly",
+	"doing side quest instead of main quest... (sorry benny TwT)",
+	"Depression and anxiety is deep within my bones",
+	"When life fucks you so hard that you starts to moan-"
 ];
 const statusEl = document.getElementById("statuses");
 let currentStatus = null;
@@ -432,108 +441,37 @@ window.addEventListener("load", () => {
  *****************************/
 
 // Gallery Elements
-const images = {
-	default: [
-		{
-			thumbnail: "/Assets/Images/t_slide1.png",
-			full: "/Assets/Images/slide1.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide2.png",
-			full: "/Assets/Images/slide2.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide3.png",
-			full: "/Assets/Images/slide3.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide4.png",
-			full: "/Assets/Images/slide4.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide5.png",
-			full: "/Assets/Images/slide5.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide6.png",
-			full: "/Assets/Images/slide6.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide7.png",
-			full: "/Assets/Images/slide7.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide8.png",
-			full: "/Assets/Images/slide8.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide9.png",
-			full: "/Assets/Images/slide9.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide10.png",
-			full: "/Assets/Images/slide10.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide11.png",
-			full: "/Assets/Images/slide11.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide12.png",
-			full: "/Assets/Images/slide12.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide13.png",
-			full: "/Assets/Images/slide13.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_slide14.png",
-			full: "/Assets/Images/slide14.png"
-		}
-	],
-	nsfw: [
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide1.png",
-			full: "/Assets/Images/NsfwSlide1.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide2.png",
-			full: "/Assets/Images/NsfwSlide2.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide3.png",
-			full: "/Assets/Images/NsfwSlide3.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide4.png",
-			full: "/Assets/Images/NsfwSlide4.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide5.png",
-			full: "/Assets/Images/NsfwSlide5.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide6.png",
-			full: "/Assets/Images/NsfwSlide6.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide7.png",
-			full: "/Assets/Images/NsfwSlide7.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide8.png",
-			full: "/Assets/Images/NsfwSlide8.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide9.png",
-			full: "/Assets/Images/NsfwSlide9.png"
-		},
-		{
-			thumbnail: "/Assets/Images/t_NsfwSlide10.png",
-			full: "/Assets/Images/NsfwSlide10.png"
-		}
-	]
-};
+const galleryConfig = {
+ 	basePath: "/Assets/Images",
+ 	sets: {
+ 		default: { thumb: "t_slide", full: "slide", count: 14 },
+ 		nsfw: { thumb: "t_NsfwSlide", full: "NsfwSlide", count: 10 }
+ 	}
+ };
+
+ const images = Object.fromEntries(
+ 	Object.entries(galleryConfig.sets).map(([key, cfg]) => [
+ 		key,
+ 		buildGallery({
+ 			basePath: galleryConfig.basePath,
+ 			thumbPrefix: cfg.thumb,
+ 			fullPrefix: cfg.full,
+ 			start: 1,
+ 			end: cfg.count
+ 		})
+ 	])
+ );
+
+function buildGallery({ basePath, thumbPrefix, fullPrefix, start, end }) {
+	const list = [];
+	for (let i = start; i <= end; i++) {
+		list.push({
+			thumbnail: `${basePath}/${thumbPrefix}${i}.png`,
+			full: `${basePath}/${fullPrefix}${i}.png`
+		});
+	}
+	return list;
+}
 
 const viewport = document.querySelector(".gallery-viewport");
 const track = document.querySelector(".gallery-track");
@@ -566,6 +504,9 @@ function renderGallery(setName) {
 		const frame = document.createElement("div");
 		frame.className = "image-frame";
 
+		const loader = document.createElement("div");
+		loader.className = "img-loader";
+
 		const img = document.createElement("img");
 
 		img.src = src.thumbnail;
@@ -576,8 +517,10 @@ function renderGallery(setName) {
 
 		img.onload = () => {
 			img.classList.add("loaded");
+			frame.classList.add("loaded");
 		};
 
+		frame.appendChild(loader);
 		frame.appendChild(img);
 		item.appendChild(frame);
 		track.appendChild(item);
@@ -593,6 +536,9 @@ function renderGallery(setName) {
 	lastClone.classList.add("clone");
 	track.appendChild(firstClone);
 	track.insertBefore(lastClone, slides[0]);
+	firstClone.querySelector(".image-frame")?.classList.add("loaded");
+	lastClone.querySelector(".image-frame")?.classList.add("loaded");
+
 	firstClone.querySelector("img")?.classList.add("loaded");
 	lastClone.querySelector("img")?.classList.add("loaded");
 
@@ -619,26 +565,34 @@ function attachModalEvents() {
 			galleryModalImg.classList.remove("loaded");
 			galleryModalImg.src = "";
 
-			let fullImg;
+			const modalContent = galleryModalImg.closest(
+				".gallery-modal-content"
+			);
+			modalContent.classList.remove("loaded");
 
-			if (fullImageCache.has(fullSrc)) {
-				fullImg = fullImageCache.get(fullSrc);
-			} else {
+			// Use cache if already loaded
+			let fullImg = fullImageCache.get(fullSrc);
+
+			if (!fullImg) {
 				fullImg = new Image();
 				fullImg.src = fullSrc;
 				fullImageCache.set(fullSrc, fullImg);
 			}
 
 			if (fullImg.complete) {
-				galleryModalImg.src = fullSrc;
-				galleryModalImg.classList.add("loaded");
+				showFullscreen(fullSrc);
 			} else {
-				fullImg.onload = () => {
-					galleryModalImg.src = fullSrc;
-					galleryModalImg.classList.add("loaded");
-				};
+				fullImg.onload = () => showFullscreen(fullSrc);
 			}
 		};
+
+		function showFullscreen(src) {
+			galleryModalImg.src = src;
+			galleryModalImg.classList.add("loaded");
+			galleryModalImg
+				.closest(".gallery-modal-content")
+				.classList.add("loaded");
+		}
 	});
 }
 
@@ -746,6 +700,10 @@ galleryModalClose.addEventListener("click", () => {
 galleryModalOverlay.addEventListener("click", e => {
 	if (e.target === galleryModalOverlay) {
 		galleryModalOverlay.classList.remove("show");
+		galleryModalImg.classList.remove("loaded");
 		galleryModalImg.src = "";
+		galleryModalImg
+			.closest("gallery-modal-content")
+			.classList.remove("loaded");
 	}
 });
