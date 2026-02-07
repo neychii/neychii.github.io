@@ -434,32 +434,32 @@ window.addEventListener("load", () => {
 // Gallery Elements
 const images = {
 	default: [
-		"/Assets/Images/slide1.png",
-		"/Assets/Images/slide2.png",
-		"/Assets/Images/slide3.png",
-		"/Assets/Images/slide4.png",
-		"/Assets/Images/slide5.png",
-		"/Assets/Images/slide6.png",
-		"/Assets/Images/slide7.png",
-		"/Assets/Images/slide8.png",
-		"/Assets/Images/slide9.png",
-		"/Assets/Images/slide10.png",
-		"/Assets/Images/slide11.png",
-		"/Assets/Images/slide12.png",
-		"/Assets/Images/slide13.png",
-		"/Assets/Images/slide14.png"
+		"./Assets/Images/slide1.png",
+		"./Assets/Images/slide2.png",
+		"./Assets/Images/slide3.png",
+		"./Assets/Images/slide4.png",
+		"./Assets/Images/slide5.png",
+		"./Assets/Images/slide6.png",
+		"./Assets/Images/slide7.png",
+		"./Assets/Images/slide8.png",
+		"./Assets/Images/slide9.png",
+		"./Assets/Images/slide10.png",
+		"./Assets/Images/slide11.png",
+		"./Assets/Images/slide12.png",
+		"./Assets/Images/slide13.png",
+		"./Assets/Images/slide14.png"
 	],
 	nsfw: [
-		"/Assets/Images/NsfwSlide1.png",
-		"/Assets/Images/NsfwSlide2.png",
-		"/Assets/Images/NsfwSlide3.png",
-		"/Assets/Images/NsfwSlide4.png",
-		"/Assets/Images/NsfwSlide5.png",
-		"/Assets/Images/NsfwSlide6.png",
-		"/Assets/Images/NsfwSlide7.png",
-		"/Assets/Images/NsfwSlide8.png",
-		"/Assets/Images/NsfwSlide9.png",
-		"/Assets/Images/NsfwSlide10.png"
+		"./Assets/Images/NsfwSlide1.png",
+		"./Assets/Images/NsfwSlide2.png",
+		"./Assets/Images/NsfwSlide3.png",
+		"./Assets/Images/NsfwSlide4.png",
+		"./Assets/Images/NsfwSlide5.png",
+		"./Assets/Images/NsfwSlide6.png",
+		"./Assets/Images/NsfwSlide7.png",
+		"./Assets/Images/NsfwSlide8.png",
+		"./Assets/Images/NsfwSlide9.png",
+		"./Assets/Images/NsfwSlide10.png"
 	]
 };
 
