@@ -1,326 +1,643 @@
-// AUDIOS
+/*****************************
+ *        AUDIO CONTROLS      *
+ *****************************/
+
+// Elements
 const audio = document.getElementById("bgm");
 const toggle = document.getElementById("musicToggle");
-
-function tryAutoplay() {
-    audio
-        .play()
-        .then(() => {
-            toggle.textContent = "pause";
-        })
-        .catch(() => {
-            toggle.textContent = "play_arrow";
-            document.body.classList.add("needs-interaction");
-        });
-}
-
-tryAutoplay();
-
-//Audio Cycler
-const playlist = [
-    {
-        title: "Despite Everything, It Is Still Me",
-        artist: "LuvBytes404",
-        src: "./Assets/Audios/audio.mp3",
-        link: "https://soundcloud.com/luvbytes404/despite-everything-it-is-still-me?si=0632d52355124315b787f9158c777200&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
-    },
-    {
-        title: "Kill me with a lie",
-        artist: "angelize",
-        src: "./Assets/Audios/audio4.mp3",
-        link: "https://open.spotify.com/track/6H2egbHEnfpGQgWGTA4icy?si=mSilVM6CQfOInmWcZAmYKQ"
-    },
-    {
-        title: "Limerence",
-        artist: "angelize",
-        src: "./Assets/Audios/audio3.mp3",
-        link: "https://open.spotify.com/track/5TEOhfxU5KP5lZApP1psga?si=bULcr0lkTm-9Tamzi_ZJxg"
-    },
-    {
-        title: "Seasons",
-        artist: "Alohaii",
-        src: "./Assets/Audios/audio2.mp3",
-        link: "https://soundcloud.com/lonealphamusic/seasons?si=75ebcd669fc847b3961be97a95d31b59&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
-    },
-    {
-        title: "Hobbies",
-        artist: "Aleyna Moon",
-        src: "./Assets/Audios/audio5.mp3",
-        link: "https://open.spotify.com/track/7evB1jJ0cK4ZYUeVGUDhQf?si=0c2afe6a127b4927"
-    }
-];
-
-let isIntro = true;
-let currentIndex = 0;
+const nextBtn = document.getElementById("nextTrack");
+const progressBar = document.querySelector(".progress-bar");
 const marquee = document.querySelector(".marquee-track");
 const marqueeTitle = document.querySelector(".marquee-title");
 const marqueeArtist = document.querySelector(".marquee-artist");
 
+// Playlist
+const playlist = [
+	{
+		title: "Despite Everything, It Is Still Me",
+		artist: "LuvBytes404",
+		src: "./Assets/Audios/audio.mp3",
+		link: "https://soundcloud.com/luvbytes404/despite-everything-it-is-still-me?si=0632d52355124315b787f9158c777200&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
+	},
+	{
+		title: "Kill me with a lie",
+		artist: "angelize",
+		src: "./Assets/Audios/audio4.mp3",
+		link: "https://open.spotify.com/track/6H2egbHEnfpGQgWGTA4icy?si=mSilVM6CQfOInmWcZAmYKQ"
+	},
+	{
+		title: "Limerence",
+		artist: "angelize",
+		src: "./Assets/Audios/audio3.mp3",
+		link: "https://open.spotify.com/track/5TEOhfxU5KP5lZApP1psga?si=bULcr0lkTm-9Tamzi_ZJxg"
+	},
+	{
+		title: "Seasons",
+		artist: "Alohaii",
+		src: "./Assets/Audios/audio2.mp3",
+		link: "https://soundcloud.com/lonealphamusic/seasons?si=75ebcd669fc847b3961be97a95d31b59&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
+	},
+	{
+		title: "Hobbies",
+		artist: "Aleyna Moon",
+		src: "./Assets/Audios/audio5.mp3",
+		link: "https://open.spotify.com/track/7evB1jJ0cK4ZYUeVGUDhQf?si=0c2afe6a127b4927"
+	}
+];
+
+let isIntro = true;
+let currentIndex = 0;
+let audioUnlocked = false;
+let audioCtx,
+	analyser,
+	source,
+	gainNode,
+	initialized = false;
+
+/* --- AUTOPLAY --- */
+function tryAutoplay() {
+	audio
+		.play()
+		.then(() => {
+			toggle.textContent = "pause";
+		})
+		.catch(() => {
+			toggle.textContent = "play_arrow";
+			document.body.classList.add("needs-interaction");
+		});
+}
+
+tryAutoplay();
+
+/* --- TRACK PLAYBACK --- */
 function playTrackByIndex(index) {
-    currentIndex = index;
-    const track = playlist[currentIndex];
+	currentIndex = index;
+	const track = playlist[currentIndex];
 
-    setTimeout(() => {
-        marqueeTitle.textContent = track.title;
-        marqueeArtist.textContent = track.artist;
+	setTimeout(() => {
+		marqueeTitle.textContent = track.title;
+		marqueeArtist.textContent = track.artist;
 
-        audio.src = track.src;
-        audio.load();
-        audio.play().catch(() => {});
+		audio.src = track.src;
+		audio.load();
+		audio.play().catch(() => {});
 
-        marquee.onclick = () => window.open(track.link);
-    }, 350);
+		marquee.onclick = () => window.open(track.link);
+	}, 350);
 }
 
 function playNextTrack() {
-    marqueeTitle.classList.remove("fade-out");
-    marqueeArtist.classList.remove("fade-out");
+	marqueeTitle.classList.add("fade-out");
+	marqueeArtist.classList.add("fade-out");
 
-    void marqueeTitle.offsetWidth;
+	const nextIndex = (currentIndex + 1) % playlist.length;
+	playTrackByIndex(nextIndex);
 
-    marqueeTitle.classList.add("fade-out");
-    marqueeArtist.classList.add("fade-out");
-
-    const nextIndex = (currentIndex + 1) % playlist.length;
-    playTrackByIndex(nextIndex);
-
-    setTimeout(() => {
-        marqueeTitle.classList.remove("fade-out");
-        marqueeArtist.classList.remove("fade-out");
-    }, 350);
+	setTimeout(() => {
+		marqueeTitle.classList.remove("fade-out");
+		marqueeArtist.classList.remove("fade-out");
+	}, 350);
 }
 
+/* --- AUDIO EVENTS --- */
 audio.addEventListener("ended", playNextTrack);
 
-const nextBtn = document.getElementById("nextTrack");
+audio.addEventListener("play", () => {
+	nextBtn.classList.add("unlocked");
+	toggle.textContent = "pause";
+	document.body.classList.add("music-playing");
 
-nextBtn.onclick = () => {
-    const now = audioCtx.currentTime;
+	initVisualizer();
+	if (audioCtx.state === "suspended") audioCtx.resume();
 
-    gainNode.gain.cancelScheduledValues(now);
-    gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-    gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+	const now = audioCtx.currentTime;
+	gainNode.gain.cancelScheduledValues(now);
+	gainNode.gain.setValueAtTime(0, now);
+	gainNode.gain.linearRampToValueAtTime(0.3, now + 0.6);
+});
 
-    setTimeout(playNextTrack, 400);
+audio.addEventListener("pause", () => {
+	progressBar.style.width = 0;
+	document.body.classList.remove("music-playing");
+});
+
+/* --- TOGGLE BUTTON --- */
+toggle.onclick = () => {
+	if (audio.paused) {
+		audio.play();
+		toggle.textContent = "pause";
+	} else {
+		const now = audioCtx.currentTime;
+		gainNode.gain.cancelScheduledValues(now);
+		gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+		gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+		setTimeout(() => audio.pause(), 400);
+		toggle.textContent = "play_arrow";
+	}
 };
 
-let audioUnlocked = false;
+/* --- NEXT BUTTON --- */
+nextBtn.onclick = () => {
+	const now = audioCtx.currentTime;
+	gainNode.gain.cancelScheduledValues(now);
+	gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+	gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+	setTimeout(playNextTrack, 400);
+};
 
+/* --- AUDIO UNLOCK --- */
 const unlockAudio = () => {
-    if (audio.paused) {
-        playTrackByIndex(currentIndex);
-    }
-
-    document.body.classList.remove("needs-interaction");
-
-    document.removeEventListener("click", unlockAudio);
-    document.removeEventListener("touchstart", unlockAudio);
+	if (audio.paused) playTrackByIndex(currentIndex);
+	document.body.classList.remove("needs-interaction");
+	document.removeEventListener("click", unlockAudio);
+	document.removeEventListener("touchstart", unlockAudio);
 };
 
 document.addEventListener("click", unlockAudio);
 document.addEventListener("touchstart", unlockAudio);
 
-audio.addEventListener("play", () => {
-    nextBtn.classList.add("unlocked");
-    document.body.classList.add("music-playing");
-
-    initVisualizer();
-
-    if (audioCtx.state === "suspended") audioCtx.resume();
-
-    const now = audioCtx.currentTime;
-
-    gainNode.gain.cancelScheduledValues(now);
-    gainNode.gain.setValueAtTime(0, now);
-    gainNode.gain.linearRampToValueAtTime(0.3, now + 0.6);
-});
-audio.addEventListener("pause", () => {
-    document.body.classList.remove("music-playing");
+/* --- PROGRESS BAR --- */
+audio.addEventListener("timeupdate", () => {
+	if (!audio.duration) return;
+	const percent = (audio.currentTime / audio.duration) * 100;
+	progressBar.style.width = `${percent}%`;
 });
 
-toggle.onclick = () => {
-    if (audio.paused) {
-        audio.play();
-        toggle.textContent = "pause";
-    } else {
-        const now = audioCtx.currentTime;
+/*****************************
+ *       VISUALIZER          *
+ *****************************/
 
-        gainNode.gain.cancelScheduledValues(now);
-        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-        gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
-
-        setTimeout(() => audio.pause(), 400);
-        toggle.textContent = "play_arrow";
-    }
-};
-
-// Visualizer
 const canvas = document.getElementById("visualizer");
 const ctx = canvas.getContext("2d");
+let smoothPulse = 0;
 
 function resizeCanvas() {
-    canvas.width = canvas.offsetWidth * devicePixelRatio;
-    canvas.height = canvas.offsetHeight * devicePixelRatio;
+	canvas.width = canvas.offsetWidth * devicePixelRatio;
+	canvas.height = canvas.offsetHeight * devicePixelRatio;
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-let audioCtx, analyser, source, gainNode;
-let initialized = false;
-
 function initVisualizer() {
-    if (initialized) return;
-    initialized = true;
+	if (initialized) return;
+	initialized = true;
 
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 128;
+	audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+	analyser = audioCtx.createAnalyser();
+	analyser.fftSize = 128;
 
-    gainNode = audioCtx.createGain();
-    gainNode.gain.value = 0;
+	gainNode = audioCtx.createGain();
+	gainNode.gain.value = 0;
 
-    source = audioCtx.createMediaElementSource(audio);
+	source = audioCtx.createMediaElementSource(audio);
 
-    source.connect(gainNode);
-    gainNode.connect(analyser);
-    analyser.connect(audioCtx.destination);
+	source.connect(gainNode);
+	gainNode.connect(analyser);
+	analyser.connect(audioCtx.destination);
 
-    draw();
+	draw();
 }
-
-let smoothPulse = 0;
 
 function draw() {
-    requestAnimationFrame(draw);
+	requestAnimationFrame(draw);
+	if (!analyser) return;
 
-    if (!analyser) return;
+	const bufferLength = analyser.frequencyBinCount;
+	const data = new Uint8Array(bufferLength);
+	analyser.getByteFrequencyData(data);
 
-    const bufferLength = analyser.frequencyBinCount;
-    const data = new Uint8Array(bufferLength);
-    analyser.getByteFrequencyData(data);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.globalCompositeOperation = "lighter";
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+	const visualWidth = canvas.width * 0.9;
+	const startX = (canvas.width - visualWidth) / 2;
+	const barWidth = visualWidth / bufferLength;
+	const centerY = canvas.height * 0.7;
 
-    ctx.globalCompositeOperation = "lighter";
+	const avg = data.reduce((sum, v) => sum + v, 0) / bufferLength;
+	const targetPulse = avg / 255;
+	smoothPulse += (targetPulse - smoothPulse) * 0.08;
+	const pulse = smoothPulse;
 
-    const visualWidth = canvas.width * 0.9;
-    const startX = (canvas.width - visualWidth) / 2;
-    const barWidth = visualWidth / bufferLength;
-    const centerY = canvas.height * 0.7;
+	data.forEach((value, i) => {
+		ctx.shadowBlur = 10 + Math.pow(pulse, 2) * 60;
+		ctx.shadowColor = `rgba(180,140,255,${0.6 + pulse * 0.4})`;
+		const barHeight = (value / 255) * canvas.height * 0.5;
 
-    const avg = data.reduce((sum, v) => sum + v, 0) / bufferLength;
+		const gradient = ctx.createLinearGradient(
+			0,
+			centerY - barHeight,
+			0,
+			centerY
+		);
+		gradient.addColorStop(0, "rgba(255,180,255,1)");
+		gradient.addColorStop(0.5, "rgba(180,140,255,0.9)");
+		gradient.addColorStop(1, "rgba(120,90,255,0.8)");
 
-    const targetPulse = avg / 255;
-    smoothPulse += (targetPulse - smoothPulse) * 0.08;
-    const pulse = smoothPulse;
+		ctx.fillStyle = gradient;
+		ctx.fillRect(
+			startX + i * barWidth,
+			centerY - barHeight,
+			barWidth * 0.75,
+			barHeight
+		);
+	});
 
-    data.forEach((value, i) => {
-        ctx.shadowBlur = 10 + Math.pow(pulse, 2) * 60;
-        ctx.shadowColor = `rgba(180,140,255,${0.6 + pulse * 0.4})`;
-        const barHeight = (value / 255) * canvas.height * 0.5;
-
-        const gradient = ctx.createLinearGradient(
-            0,
-            centerY - barHeight,
-            0,
-            centerY
-        );
-
-        gradient.addColorStop(0, "rgba(255,180,255,1)");
-        gradient.addColorStop(0.5, "rgba(180,140,255,0.9)");
-        gradient.addColorStop(1, "rgba(120,90,255,0.8)");
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(
-            startX + i * barWidth,
-            centerY - barHeight,
-            barWidth * 0.75,
-            barHeight
-        );
-    });
-
-    ctx.globalCompositeOperation = "source-over";
+	ctx.globalCompositeOperation = "source-over";
 }
 
-audio.addEventListener("play", () => {
-    initVisualizer();
-    if (audioCtx?.state === "suspended") audioCtx.resume();
-});
+/*****************************
+ *         SOCIAL MODAL       *
+ *****************************/
 
-//Social Modal
 const overlay = document.getElementById("socialOverlay");
 
 document.getElementById("openSocials").onclick = () => {
-    overlay.style.display = "flex";
-    document.body.classList.add("modal-open");
-    requestAnimationFrame(() => overlay.classList.add("show"));
+	overlay.style.display = "flex";
+	document.body.classList.add("modal-open");
+	requestAnimationFrame(() => overlay.classList.add("show"));
 };
 
 overlay.onclick = e => {
-    if (e.target !== overlay) return;
-
-    const modal = overlay.querySelector(".social-modal");
-    modal.classList.add("closing");
-    overlay.classList.remove("show");
-
-    document.body.classList.remove("modal-open");
-
-    modal.addEventListener(
-        "animationend",
-        () => {
-            modal.classList.remove("closing");
-            overlay.style.display = "none";
-        },
-        { once: true }
-    );
+	if (e.target !== overlay) return;
+	const modal = overlay.querySelector(".social-modal");
+	modal.classList.add("closing");
+	overlay.classList.remove("show");
+	document.body.classList.remove("modal-open");
+	modal.addEventListener(
+		"animationend",
+		() => {
+			modal.classList.remove("closing");
+			overlay.style.display = "none";
+		},
+		{ once: true }
+	);
 };
 
-//Page Loading
-window.addEventListener("load", () => {
-    const page = document.getElementById("page");
-    if (!page) {
-        console.error("#page not found");
-        return;
-    }
+/*****************************
+ *         EASTER EGGS       *
+ *****************************/
 
-    requestAnimationFrame(() => {
-        page.classList.add("page-loaded");
-    });
-});
-
-//Mascot Easteregg
 const mascot = document.getElementById("mascot");
-
 const originalSrc = "./Assets/Images/mascot1.png";
 const alternateSrc = "./Assets/Images/mascot2.png";
 
 let clickCount = 0;
-
 const triggerAmount = 10;
 const timeFrame = 1000;
 const resetMascot = 2000;
-
 let frameTimer = null;
 let mascotTimer = null;
 
 mascot.addEventListener("click", () => {
-    clickCount++;
-    if (frameTimer) clearTimeout(frameTimer);
-    frameTimer = setTimeout(function () {
-        clickCount = 0;
-    }, timeFrame);
+	clickCount++;
+	clearTimeout(frameTimer);
+	frameTimer = setTimeout(() => (clickCount = 0), timeFrame);
 
-    if (clickCount >= triggerAmount) {
-        mascot.src = alternateSrc;
-        mascot.classList.add("active");
+	if (clickCount >= triggerAmount) {
+		mascot.src = alternateSrc;
+		mascot.classList.add("active");
+		clickCount = 0;
+		clearTimeout(frameTimer);
 
-        clickCount = 0;
-        clearTimeout(frameTimer);
+		clearTimeout(mascotTimer);
+		mascotTimer = setTimeout(() => {
+			mascot.src = originalSrc;
+			mascot.classList.remove("active");
+		}, resetMascot);
+	}
+});
 
-        if (mascotTimer) clearTimeout(mascotTimer);
-        mascotTimer = setTimeout(function () {
-            mascot.src = originalSrc;
-            mascot.classList.remove("active");
-        }, resetMascot);
-    }
+const pfp = document.querySelector(".pfp");
+const pfpImg = pfp.querySelector("img");
+
+const defaultPfp = "./Assets/Images/avatar.jpg";
+const altPfp = "./Assets/Images/avatar_alt.jpg";
+
+let holdTimer = null;
+let swapped = false;
+let holding = false;
+
+function startHold() {
+	if (holding) return;
+	holding = true;
+
+	pfp.classList.add("is-holding");
+
+	holdTimer = setTimeout(() => {
+		pfpImg.src = swapped ? defaultPfp : altPfp;
+		swapped = !swapped;
+
+		pfp.classList.remove("is-holding");
+		holding = false;
+	}, 10000); // 10s
+}
+
+function cancelHold() {
+	clearTimeout(holdTimer);
+	pfp.classList.remove("is-holding");
+	holding = false;
+}
+
+/* Desktop */
+pfp.addEventListener("mouseenter", startHold);
+pfp.addEventListener("mouseleave", cancelHold);
+
+/* Mobile */
+pfp.addEventListener("touchstart", startHold, { passive: true });
+pfp.addEventListener("touchend", cancelHold);
+pfp.addEventListener("touchcancel", cancelHold);
+
+/*****************************
+ *        MATURE WARNING      *
+ *****************************/
+
+const matureOverlay = document.getElementById("matureOverlay");
+const matureCancel = document.getElementById("matureCancel");
+const matureContinue = document.getElementById("matureContinue");
+let pendingLink = null;
+
+function openMatureWarning(link) {
+	pendingLink = link;
+	matureOverlay.style.display = "flex";
+	document.body.classList.add("modal-open");
+	requestAnimationFrame(() => matureOverlay.classList.add("show"));
+}
+
+function closeMatureWarning() {
+	const modal = matureOverlay.querySelector(".mature-modal");
+	modal.classList.add("closing");
+	matureOverlay.classList.remove("show");
+	document.body.classList.remove("modal-open");
+	modal.addEventListener(
+		"animationend",
+		() => {
+			modal.classList.remove("closing");
+			matureOverlay.style.display = "none";
+		},
+		{ once: true }
+	);
+}
+
+matureCancel.onclick = closeMatureWarning;
+matureContinue.onclick = () => {
+	if (pendingLink) window.open(pendingLink, "_blank");
+	closeMatureWarning();
+};
+
+/*****************************
+ *         STATUS LINE        *
+ *****************************/
+
+const statuses = [
+	"It is what it is",
+	"Finishing Shinaney Avatar",
+	"Initiating Aze-chii Avatar",
+	"Listening to Dance, Dance by fall ouy boy"
+];
+const statusEl = document.getElementById("statuses");
+let currentStatus = null;
+
+function getRandomStatus() {
+	const pool = statuses.filter(s => s !== currentStatus);
+	return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function swapStatus() {
+	statusEl.classList.add("swapOut");
+	setTimeout(() => {
+		currentStatus = getRandomStatus();
+		statusEl.textContent = `💭: ${currentStatus}`;
+		statusEl.classList.remove("swapOut");
+	}, 450);
+}
+
+currentStatus = getRandomStatus();
+statusEl.textContent = `💭: ${currentStatus}`;
+setInterval(swapStatus, 10000);
+
+/*****************************
+ *         PAGE LOAD          *
+ *****************************/
+
+window.addEventListener("load", () => {
+	const page = document.getElementById("page");
+	if (!page) return console.error("#page not found");
+	update(false);
+	requestAnimationFrame(() => page.classList.add("page-loaded"));
+});
+
+/*****************************
+ *          GALLERY           *
+ *****************************/
+
+// Gallery Elements
+const images = {
+	default: [
+		"/Assets/Images/slide1.png",
+		"/Assets/Images/slide2.png",
+		"/Assets/Images/slide3.png",
+		"/Assets/Images/slide4.png",
+		"/Assets/Images/slide5.png",
+		"/Assets/Images/slide6.png",
+		"/Assets/Images/slide7.png",
+		"/Assets/Images/slide8.png",
+		"/Assets/Images/slide9.png",
+		"/Assets/Images/slide10.png",
+		"/Assets/Images/slide11.png",
+		"/Assets/Images/slide12.png",
+		"/Assets/Images/slide13.png",
+		"/Assets/Images/slide14.png"
+	],
+	nsfw: [
+		"/Assets/Images/NsfwSlide1.png",
+		"/Assets/Images/NsfwSlide2.png",
+		"/Assets/Images/NsfwSlide3.png",
+		"/Assets/Images/NsfwSlide4.png",
+		"/Assets/Images/NsfwSlide5.png",
+		"/Assets/Images/NsfwSlide6.png",
+		"/Assets/Images/NsfwSlide7.png",
+		"/Assets/Images/NsfwSlide8.png",
+		"/Assets/Images/NsfwSlide9.png",
+		"/Assets/Images/NsfwSlide10.png"
+	]
+};
+
+const viewport = document.querySelector(".gallery-viewport");
+const track = document.querySelector(".gallery-track");
+const nextSlide = document.querySelector(".next");
+const prevSlide = document.querySelector(".prev");
+
+// Gallery state
+let currentSet = "default";
+let slides;
+let index = 1;
+let isAnimating = false;
+let autoTimer;
+const INTERVAL = 10000;
+const TRANSITION_MS = 600;
+let unlockTimer = null;
+
+function renderGallery(setName) {
+	const slidesData = images[setName];
+
+	track.innerHTML = "";
+
+	slidesData.forEach(src => {
+		const item = document.createElement("div");
+		item.className = "gallery-item";
+
+		const frame = document.createElement("div");
+		frame.className = "image-frame";
+
+		const img = document.createElement("img");
+		img.src = src;
+		img.alt = "";
+		img.classList.add("gallery-img");
+		frame.appendChild(img);
+		item.appendChild(frame);
+		track.appendChild(item);
+	});
+
+	// Recalculate slides
+	slides = Array.from(track.children);
+
+	// Setup clones for infinite loop
+	const firstClone = slides[0].cloneNode(true);
+	const lastClone = slides[slides.length - 1].cloneNode(true);
+	firstClone.classList.add("clone");
+	lastClone.classList.add("clone");
+	track.appendChild(firstClone);
+	track.insertBefore(lastClone, slides[0]);
+
+	// Reset gallery index
+	index = 1;
+	update(false);
+
+	// Re-attach fullscreen modal events
+	attachModalEvents();
+}
+
+function attachModalEvents() {
+	document.querySelectorAll(".gallery-img").forEach(img => {
+		img.onclick = () => {
+			galleryModalImg.src = img.src;
+			galleryModalOverlay.classList.add("show");
+		};
+	});
+}
+
+const galleryTitle = document.getElementById("gallery-text");
+
+galleryTitle.addEventListener("click", () => {
+	currentSet = currentSet === "default" ? "nsfw" : "default";
+	galleryTitle.textContent =
+		currentSet !== "default" ? "Gallery⁽ⁿˢᶠʷ⁾" : "Gallery";
+	renderGallery(currentSet);
+});
+
+renderGallery(currentSet);
+
+// Helpers
+function slideWidth() {
+	return slides[0].getBoundingClientRect().width + 24;
+}
+function centerOffset() {
+	const slide = slides[0].getBoundingClientRect().width;
+	const raw = (viewport.clientWidth - slide) / 2;
+	return Math.min(raw, 80);
+}
+
+// Update track
+function update(animate = true) {
+	if (animate) lock();
+	track.style.transition = animate
+		? "transform 0.6s ease, opacity 0.2s ease"
+		: "none";
+	track.style.transform = `translateX(-${index * slideWidth() - centerOffset()}px)`;
+}
+
+function lock() {
+	isAnimating = true;
+	clearTimeout(unlockTimer);
+	unlockTimer = setTimeout(() => (isAnimating = false), TRANSITION_MS + 50);
+}
+
+// Infinite loop handling
+track.addEventListener("transitionend", () => {
+	const total = slides.length;
+	if (index === 0) index = total;
+	if (index === total + 1) index = 1;
+	update(false);
+	isAnimating = false;
+});
+
+// Slide navigation
+function next() {
+	if (!isAnimating) {
+		index++;
+		update();
+	}
+}
+function prev() {
+	if (!isAnimating) {
+		index--;
+		update();
+	}
+}
+
+// Auto scroll
+function startAuto() {
+	stopAuto();
+	autoTimer = setInterval(next, INTERVAL);
+}
+function stopAuto() {
+	clearInterval(autoTimer);
+}
+
+// Buttons
+nextSlide.onclick = () => {
+	stopAuto();
+	next();
+	startAuto();
+};
+prevSlide.onclick = () => {
+	stopAuto();
+	prev();
+	startAuto();
+};
+
+// Resize
+window.addEventListener("resize", update);
+
+// Initialize
+update();
+startAuto();
+
+/*****************************
+ *         Fullscreen        *
+ *****************************/
+
+// Get modal elements
+const galleryModalOverlay = document.getElementById("galleryModalOverlay");
+const galleryModalImg = document.getElementById("galleryModalImg");
+const galleryModalClose = document.querySelector(".gallery-modal-close");
+
+// Add click event to each gallery image
+document.querySelectorAll(".gallery-img").forEach(img => {
+	img.addEventListener("click", () => {
+		galleryModalImg.src = img.src;
+		galleryModalOverlay.classList.add("show");
+	});
+});
+
+// Close modal when clicking close button or overlay
+galleryModalClose.addEventListener("click", () => {
+	galleryModalOverlay.classList.remove("show");
+});
+
+galleryModalOverlay.addEventListener("click", e => {
+	if (e.target === galleryModalOverlay) {
+		galleryModalOverlay.classList.remove("show");
+	}
 });
