@@ -434,32 +434,104 @@ window.addEventListener("load", () => {
 // Gallery Elements
 const images = {
 	default: [
-		"./Assets/Images/slide1.png",
-		"./Assets/Images/slide2.png",
-		"./Assets/Images/slide3.png",
-		"./Assets/Images/slide4.png",
-		"./Assets/Images/slide5.png",
-		"./Assets/Images/slide6.png",
-		"./Assets/Images/slide7.png",
-		"./Assets/Images/slide8.png",
-		"./Assets/Images/slide9.png",
-		"./Assets/Images/slide10.png",
-		"./Assets/Images/slide11.png",
-		"./Assets/Images/slide12.png",
-		"./Assets/Images/slide13.png",
-		"./Assets/Images/slide14.png"
+		{
+			thumbnail: "/Assets/Images/t_slide1.png",
+			full: "/Assets/Images/slide1.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide2.png",
+			full: "/Assets/Images/slide2.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide3.png",
+			full: "/Assets/Images/slide3.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide4.png",
+			full: "/Assets/Images/slide4.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide5.png",
+			full: "/Assets/Images/slide5.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide6.png",
+			full: "/Assets/Images/slide6.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide7.png",
+			full: "/Assets/Images/slide7.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide8.png",
+			full: "/Assets/Images/slide8.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide9.png",
+			full: "/Assets/Images/slide9.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide10.png",
+			full: "/Assets/Images/slide10.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide11.png",
+			full: "/Assets/Images/slide11.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide12.png",
+			full: "/Assets/Images/slide12.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide13.png",
+			full: "/Assets/Images/slide13.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_slide14.png",
+			full: "/Assets/Images/slide14.png"
+		}
 	],
 	nsfw: [
-		"./Assets/Images/NsfwSlide1.png",
-		"./Assets/Images/NsfwSlide2.png",
-		"./Assets/Images/NsfwSlide3.png",
-		"./Assets/Images/NsfwSlide4.png",
-		"./Assets/Images/NsfwSlide5.png",
-		"./Assets/Images/NsfwSlide6.png",
-		"./Assets/Images/NsfwSlide7.png",
-		"./Assets/Images/NsfwSlide8.png",
-		"./Assets/Images/NsfwSlide9.png",
-		"./Assets/Images/NsfwSlide10.png"
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide1.png",
+			full: "/Assets/Images/NsfwSlide1.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide2.png",
+			full: "/Assets/Images/NsfwSlide2.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide3.png",
+			full: "/Assets/Images/NsfwSlide3.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide4.png",
+			full: "/Assets/Images/NsfwSlide4.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide5.png",
+			full: "/Assets/Images/NsfwSlide5.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide6.png",
+			full: "/Assets/Images/NsfwSlide6.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide7.png",
+			full: "/Assets/Images/NsfwSlide7.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide8.png",
+			full: "/Assets/Images/NsfwSlide8.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide9.png",
+			full: "/Assets/Images/NsfwSlide9.png"
+		},
+		{
+			thumbnail: "/Assets/Images/t_NsfwSlide10.png",
+			full: "/Assets/Images/NsfwSlide10.png"
+		}
 	]
 };
 
@@ -478,7 +550,11 @@ const INTERVAL = 10000;
 const TRANSITION_MS = 600;
 let unlockTimer = null;
 
+const fullImageCache = new Map();
+
 function renderGallery(setName) {
+	track.classList.add("no-transition");
+
 	const slidesData = images[setName];
 
 	track.innerHTML = "";
@@ -491,7 +567,31 @@ function renderGallery(setName) {
 		frame.className = "image-frame";
 
 		const img = document.createElement("img");
-		img.src = src;
+
+		img.src = src.thumbnail;
+		img.dataset.full = src.full;
+		img.classList.remove("loaded");
+
+		// Preload full image
+		if (!fullImageCache.has(src.full)) {
+			const fullImg = new Image();
+			fullImg.src = src.full;
+			fullImageCache.set(src.full, fullImg);
+		}
+
+		const fullImg = fullImageCache.get(src.full);
+
+		const applyFull = () => {
+			img.src = src.full;
+			img.classList.add("loaded");
+		};
+
+		if (fullImg.complete) {
+			applyFull();
+		} else {
+			fullImg.addEventListener("load", applyFull, { once: true });
+		}
+
 		img.alt = "";
 		img.classList.add("gallery-img");
 		frame.appendChild(img);
@@ -509,10 +609,16 @@ function renderGallery(setName) {
 	lastClone.classList.add("clone");
 	track.appendChild(firstClone);
 	track.insertBefore(lastClone, slides[0]);
+	firstClone.querySelector("img")?.classList.add("loaded");
+	lastClone.querySelector("img")?.classList.add("loaded");
 
 	// Reset gallery index
 	index = 1;
 	update(false);
+
+	requestAnimationFrame(() => {
+		track.classList.remove("no-transition");
+	});
 
 	// Re-attach fullscreen modal events
 	attachModalEvents();
@@ -520,8 +626,10 @@ function renderGallery(setName) {
 
 function attachModalEvents() {
 	document.querySelectorAll(".gallery-img").forEach(img => {
+		if (img.closest(".clone")) return;
+
 		img.onclick = () => {
-			galleryModalImg.src = img.src;
+			galleryModalImg.src = img.dataset.full;
 			galleryModalOverlay.classList.add("show");
 		};
 	});
@@ -623,14 +731,6 @@ const galleryModalOverlay = document.getElementById("galleryModalOverlay");
 const galleryModalImg = document.getElementById("galleryModalImg");
 const galleryModalClose = document.querySelector(".gallery-modal-close");
 
-// Add click event to each gallery image
-document.querySelectorAll(".gallery-img").forEach(img => {
-	img.addEventListener("click", () => {
-		galleryModalImg.src = img.src;
-		galleryModalOverlay.classList.add("show");
-	});
-});
-
 // Close modal when clicking close button or overlay
 galleryModalClose.addEventListener("click", () => {
 	galleryModalOverlay.classList.remove("show");
@@ -639,5 +739,6 @@ galleryModalClose.addEventListener("click", () => {
 galleryModalOverlay.addEventListener("click", e => {
 	if (e.target === galleryModalOverlay) {
 		galleryModalOverlay.classList.remove("show");
+		galleryModalImg.src = "";
 	}
 });
