@@ -571,29 +571,13 @@ function renderGallery(setName) {
 		img.src = src.thumbnail;
 		img.dataset.full = src.full;
 		img.classList.remove("loaded");
+		img.alt = "";
+		img.classList.add("gallery-img");
 
-		// Preload full image
-		if (!fullImageCache.has(src.full)) {
-			const fullImg = new Image();
-			fullImg.src = src.full;
-			fullImageCache.set(src.full, fullImg);
-		}
-
-		const fullImg = fullImageCache.get(src.full);
-
-		const applyFull = () => {
-			img.src = src.full;
+		img.onload = () => {
 			img.classList.add("loaded");
 		};
 
-		if (fullImg.complete) {
-			applyFull();
-		} else {
-			fullImg.addEventListener("load", applyFull, { once: true });
-		}
-
-		img.alt = "";
-		img.classList.add("gallery-img");
 		frame.appendChild(img);
 		item.appendChild(frame);
 		track.appendChild(item);
@@ -629,8 +613,31 @@ function attachModalEvents() {
 		if (img.closest(".clone")) return;
 
 		img.onclick = () => {
-			galleryModalImg.src = img.dataset.full;
+			const fullSrc = img.dataset.full;
+
 			galleryModalOverlay.classList.add("show");
+			galleryModalImg.classList.remove("loaded");
+			galleryModalImg.src = "";
+
+			let fullImg;
+
+			if (fullImageCache.has(fullSrc)) {
+				fullImg = fullImageCache.get(fullSrc);
+			} else {
+				fullImg = new Image();
+				fullImg.src = fullSrc;
+				fullImageCache.set(fullSrc, fullImg);
+			}
+
+			if (fullImg.complete) {
+				galleryModalImg.src = fullSrc;
+				galleryModalImg.classList.add("loaded");
+			} else {
+				fullImg.onload = () => {
+					galleryModalImg.src = fullSrc;
+					galleryModalImg.classList.add("loaded");
+				};
+			}
 		};
 	});
 }
@@ -640,7 +647,7 @@ const galleryTitle = document.getElementById("gallery-text");
 galleryTitle.addEventListener("click", () => {
 	currentSet = currentSet === "default" ? "nsfw" : "default";
 	galleryTitle.textContent =
-		currentSet !== "default" ? "Gallery⁽ⁿˢᶠʷ⁾" : "Gallery";
+		currentSet !== "default" ? "Gallery~" : "Gallery";
 	renderGallery(currentSet);
 });
 

@@ -775,6 +775,17 @@ ul li::before {
 	transform: scale(1);
 }
 
+#galleryModalImg {
+	filter: blur(20px);
+	opacity: 0;
+	transition: filter 0.4s ease, opacity 0.4s ease;
+}
+
+#galleryModalImg.loaded {
+	filter: blur(0);
+	opacity: 1;
+}
+
 /* =========================
    Mascot / Easteregg
    ========================= */
