@@ -251,11 +251,15 @@ function draw() {
  *****************************/
 
 const overlay = document.getElementById("socialOverlay");
+const mascot = document.getElementById("mascot");
 
 document.getElementById("openSocials").onclick = () => {
 	overlay.style.display = "flex";
 	document.body.classList.add("modal-open");
-	requestAnimationFrame(() => overlay.classList.add("show"));
+	requestAnimationFrame(() => {
+	    overlay.classList.add("show");
+	    mascot.classList.add("modal-open")
+	    });
 };
 
 overlay.onclick = e => {
@@ -268,6 +272,7 @@ overlay.onclick = e => {
 		"animationend",
 		() => {
 			modal.classList.remove("closing");
+			mascot.classList.remove("modal-open")
 			overlay.style.display = "none";
 		},
 		{ once: true }
@@ -278,7 +283,6 @@ overlay.onclick = e => {
  *         EASTER EGGS       *
  *****************************/
 
-const mascot = document.getElementById("mascot");
 const originalSrc = "./Assets/Images/mascot1.png";
 const alternateSrc = "./Assets/Images/mascot2.png";
 
@@ -429,11 +433,24 @@ setInterval(swapStatus, 10000);
  *         PAGE LOAD          *
  *****************************/
 
+const loadingTextEl = document.getElementById("loadingText");
+let dots = 0;
+
+setInterval(() => {
+	dots = (dots + 1) % 4;
+	loadingTextEl.textContent = "Loading" + ".".repeat(dots);
+}, 500);
+
 window.addEventListener("load", () => {
 	const page = document.getElementById("page");
+	const loading = document.getElementById("loadingText");
 	if (!page) return console.error("#page not found");
 	update(false);
-	requestAnimationFrame(() => page.classList.add("page-loaded"));
+	requestAnimationFrame(() => {
+		page.classList.add("page-loaded");
+		mascot.classList.add("page-loaded");
+		loading.classList.add("page-loaded");
+	});
 });
 
 /*****************************
@@ -442,25 +459,25 @@ window.addEventListener("load", () => {
 
 // Gallery Elements
 const galleryConfig = {
- 	basePath: "/Assets/Images",
- 	sets: {
- 		default: { thumb: "t_slide", full: "slide", count: 14 },
- 		nsfw: { thumb: "t_NsfwSlide", full: "NsfwSlide", count: 10 }
- 	}
- };
+	basePath: "/Assets/Images",
+	sets: {
+		default: { thumb: "t_slide", full: "slide", count: 14 },
+		nsfw: { thumb: "t_NsfwSlide", full: "NsfwSlide", count: 10 }
+	}
+};
 
- const images = Object.fromEntries(
- 	Object.entries(galleryConfig.sets).map(([key, cfg]) => [
- 		key,
- 		buildGallery({
- 			basePath: galleryConfig.basePath,
- 			thumbPrefix: cfg.thumb,
- 			fullPrefix: cfg.full,
- 			start: 1,
- 			end: cfg.count
- 		})
- 	])
- );
+const images = Object.fromEntries(
+	Object.entries(galleryConfig.sets).map(([key, cfg]) => [
+		key,
+		buildGallery({
+			basePath: galleryConfig.basePath,
+			thumbPrefix: cfg.thumb,
+			fullPrefix: cfg.full,
+			start: 1,
+			end: cfg.count
+		})
+	])
+);
 
 function buildGallery({ basePath, thumbPrefix, fullPrefix, start, end }) {
 	const list = [];
@@ -620,9 +637,7 @@ function centerOffset() {
 // Update track
 function update(animate = true) {
 	if (animate) lock();
-	track.style.transition = animate
-		? "transform 0.6s ease, opacity 0.2s ease"
-		: "none";
+	track.style.transition = animate ? "transform 0.6s ease" : "none";
 	track.style.transform = `translateX(-${index * slideWidth() - centerOffset()}px)`;
 }
 
