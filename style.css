@@ -882,11 +882,11 @@ ul li::before {
 
 #mascot.page-loaded {
 	width: 100px;
-	transform: translate(calc(50vw - 50px), calc(50vh - 18px));
+	transform: translate(calc(50vw - 50px), calc(50vh - 50px));
 }
 
 #mascot.modal-open {
-    transform: translate(calc(50vw - 20px), calc(50vh - 18px));
+    transform: translate(calc(50vw - 20px), calc(50vh - 50px));
 }
 
 #loadingText {
