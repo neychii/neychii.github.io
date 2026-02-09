@@ -909,6 +909,7 @@ ul li::before {
 	right: 50%;
 	z-index: 999;
 	cursor: none;
+	pointer-events: none;
 	opacity: 1;
 	transform: translate(55%, 100%);
 	transition: opacity 0.2s ease-in;
