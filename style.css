@@ -578,6 +578,7 @@ ul li::before {
 	color: #fff;
 	font-size: 1.1rem;
 	cursor: pointer;
+    user-select: none;
 	transition: transform 0.3s;
 }
 
@@ -622,6 +623,7 @@ ul li::before {
 	margin: 0 0 18px;
 	font-size: 1.6rem;
 	font-weight: 600;
+    user-select: none;
 	color: var(--accent);
 	text-shadow: 0 0 12px rgba(180, 140, 255, 0.6);
 }
@@ -654,6 +656,7 @@ ul li::before {
 	color: var(--accent);
 	text-decoration: none;
 	font-size: 1.1rem;
+    user-select: none;
 	transition:
 		transform 0.3s,
 		box-shadow 0.3s,
@@ -708,6 +711,7 @@ ul li::before {
 	margin: 0 0 12px;
 	font-size: 1.4rem;
 	color: var(--accent);
+    user-select: none;
 	text-shadow: 0 0 14px rgba(180, 140, 255, 0.6);
 }
 
@@ -715,6 +719,7 @@ ul li::before {
 	font-size: 0.95rem;
 	color: var(--muted);
 	line-height: 1.4;
+    user-select: none;
 }
 
 .mature-actions {
@@ -739,6 +744,7 @@ ul li::before {
 .mature-btn.primary {
 	background: linear-gradient(135deg, var(--accent), var(--accent-soft));
 	color: #000;
+    user-select: none;
 	box-shadow: 0 0 18px rgba(180, 140, 255, 0.55);
 }
 
@@ -750,6 +756,7 @@ ul li::before {
 .mature-btn.ghost {
 	background: rgba(180, 140, 255, 0.08);
 	color: var(--accent);
+    user-select: none;
 	border: 1px solid rgba(180, 140, 255, 0.4);
 }
 
@@ -908,8 +915,8 @@ ul li::before {
 	bottom: 38%;
 	right: 50%;
 	z-index: 999;
+    user-select: none;
 	cursor: none;
-	pointer-events: none;
 	opacity: 1;
 	transform: translate(55%, 100%);
 	transition: opacity 0.2s ease-in;
@@ -923,6 +930,7 @@ ul li::before {
    Footer
    ========================= */
 footer {
+    user-select: none;
 	text-align: center;
 	font-size: 0.85rem;
 	color: #777;
