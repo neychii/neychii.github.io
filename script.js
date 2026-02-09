@@ -11,7 +11,6 @@ const marquee = document.querySelector(".marquee-track");
 const marqueeTitle = document.querySelector(".marquee-title");
 const marqueeArtist = document.querySelector(".marquee-artist");
 
-// Playlist
 const playlist = [
 	{
 		title: "Despite Everything, It Is Still Me",
@@ -20,22 +19,46 @@ const playlist = [
 		link: "https://soundcloud.com/luvbytes404/despite-everything-it-is-still-me?si=0632d52355124315b787f9158c777200&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
 	},
 	{
+		title: "Limerence",
+		artist: "angelize, ft. Lilycat",
+		src: "./Assets/Audios/audio3.mp3",
+		link: "https://open.spotify.com/track/5TEOhfxU5KP5lZApP1psga?si=bULcr0lkTm-9Tamzi_ZJxg"
+	},
+	{
 		title: "Kill me with a lie",
 		artist: "angelize",
 		src: "./Assets/Audios/audio4.mp3",
 		link: "https://open.spotify.com/track/6H2egbHEnfpGQgWGTA4icy?si=mSilVM6CQfOInmWcZAmYKQ"
 	},
 	{
-		title: "Limerence",
-		artist: "angelize",
-		src: "./Assets/Audios/audio3.mp3",
-		link: "https://open.spotify.com/track/5TEOhfxU5KP5lZApP1psga?si=bULcr0lkTm-9Tamzi_ZJxg"
+		title: "under the sky",
+		artist: "coco., ft. Lil Chili",
+		src: "./Assets/Audios/audio6.mp3",
+		link: "https://open.spotify.com/track/1SY9IArHB4QtiX37o4mOg7?si=OSgqX0rNSOmpeZZTF_22IQ"
 	},
 	{
 		title: "Seasons",
-		artist: "Alohaii",
+		artist: "Alohaii, ft. Shiki Myokino",
 		src: "./Assets/Audios/audio2.mp3",
 		link: "https://soundcloud.com/lonealphamusic/seasons?si=75ebcd669fc847b3961be97a95d31b59&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
+	},
+	{
+		title: "Tell Me",
+		artist: "coco., ft. Lil Chili",
+		src: "./Assets/Audios/audio7.mp3",
+		link: "https://open.spotify.com/track/14ar0JOH3XfT9AJWRlganR?si=EG2zu_whRsCznDuYbiC7Ww"
+	},
+	{
+		title: "3edw",
+		artist: "angelize",
+		src: "./Assets/Audios/audio8.mp3",
+		link: "https://open.spotify.com/track/2QPSTJZuLHo3dQSjOVioUf?si=j8H0NQCqRTiOD7EHjVJePw"
+	},
+	{
+		title: "Looking For Me",
+		artist: "Itoguruma, ft. Lil Chili",
+		src: "./Assets/Audios/audio9.mp3",
+		link: "https://open.spotify.com/track/575k01Ql5iqK5aR9kIv0Kw?si=9KIOh5lLTLWEwejTI6XBXw"
 	},
 	{
 		title: "Hobbies",
@@ -54,7 +77,6 @@ let audioCtx,
 	gainNode,
 	initialized = false;
 
-/* --- AUTOPLAY --- */
 function tryAutoplay() {
 	audio
 		.play()
@@ -69,7 +91,6 @@ function tryAutoplay() {
 
 tryAutoplay();
 
-/* --- TRACK PLAYBACK --- */
 function playTrackByIndex(index) {
 	currentIndex = index;
 	const track = playlist[currentIndex];
@@ -99,7 +120,6 @@ function playNextTrack() {
 	}, 350);
 }
 
-/* --- AUDIO EVENTS --- */
 audio.addEventListener("ended", playNextTrack);
 
 audio.addEventListener("play", () => {
@@ -121,7 +141,6 @@ audio.addEventListener("pause", () => {
 	document.body.classList.remove("music-playing");
 });
 
-/* --- TOGGLE BUTTON --- */
 toggle.onclick = () => {
 	if (audio.paused) {
 		audio.play();
@@ -136,7 +155,6 @@ toggle.onclick = () => {
 	}
 };
 
-/* --- NEXT BUTTON --- */
 nextBtn.onclick = () => {
 	const now = audioCtx.currentTime;
 	gainNode.gain.cancelScheduledValues(now);
@@ -145,7 +163,6 @@ nextBtn.onclick = () => {
 	setTimeout(playNextTrack, 400);
 };
 
-/* --- AUDIO UNLOCK --- */
 const unlockAudio = () => {
 	if (audio.paused) playTrackByIndex(currentIndex);
 	document.body.classList.remove("needs-interaction");
@@ -156,7 +173,6 @@ const unlockAudio = () => {
 document.addEventListener("click", unlockAudio);
 document.addEventListener("touchstart", unlockAudio);
 
-/* --- PROGRESS BAR --- */
 audio.addEventListener("timeupdate", () => {
 	if (!audio.duration) return;
 	const percent = (audio.currentTime / audio.duration) * 100;
@@ -334,7 +350,7 @@ function startHold() {
 
 		pfp.classList.remove("is-holding");
 		holding = false;
-	}, 10000); // 10s
+	}, 10000);
 }
 
 function cancelHold() {
@@ -343,11 +359,9 @@ function cancelHold() {
 	holding = false;
 }
 
-/* Desktop */
 pfp.addEventListener("mouseenter", startHold);
 pfp.addEventListener("mouseleave", cancelHold);
 
-/* Mobile */
 pfp.addEventListener("touchstart", startHold, { passive: true });
 pfp.addEventListener("touchend", cancelHold);
 pfp.addEventListener("touchcancel", cancelHold);
@@ -457,7 +471,6 @@ window.addEventListener("load", () => {
  *          GALLERY           *
  *****************************/
 
-// Gallery Elements
 const galleryConfig = {
 	basePath: "/Assets/Images",
 	sets: {
@@ -495,7 +508,6 @@ const track = document.querySelector(".gallery-track");
 const nextSlide = document.querySelector(".next");
 const prevSlide = document.querySelector(".prev");
 
-// Gallery state
 let currentSet = "default";
 let slides;
 let index = 1;
@@ -543,23 +555,20 @@ function renderGallery(setName) {
 		track.appendChild(item);
 	});
 
-	// Recalculate slides
 	slides = Array.from(track.children);
 
-	// Setup clones for infinite loop
 	const firstClone = slides[0].cloneNode(true);
 	const lastClone = slides[slides.length - 1].cloneNode(true);
 	firstClone.classList.add("clone");
 	lastClone.classList.add("clone");
 	track.appendChild(firstClone);
 	track.insertBefore(lastClone, slides[0]);
+	
 	firstClone.querySelector(".image-frame")?.classList.add("loaded");
 	lastClone.querySelector(".image-frame")?.classList.add("loaded");
-
 	firstClone.querySelector("img")?.classList.add("loaded");
 	lastClone.querySelector("img")?.classList.add("loaded");
 
-	// Reset gallery index
 	index = 1;
 	update(false);
 
@@ -567,7 +576,6 @@ function renderGallery(setName) {
 		track.classList.remove("no-transition");
 	});
 
-	// Re-attach fullscreen modal events
 	attachModalEvents();
 }
 
@@ -586,8 +594,7 @@ function attachModalEvents() {
 				".gallery-modal-content"
 			);
 			modalContent.classList.remove("loaded");
-
-			// Use cache if already loaded
+			
 			let fullImg = fullImageCache.get(fullSrc);
 
 			if (!fullImg) {
@@ -624,7 +631,6 @@ galleryTitle.addEventListener("click", () => {
 
 renderGallery(currentSet);
 
-// Helpers
 function slideWidth() {
 	return slides[0].getBoundingClientRect().width + 24;
 }
@@ -634,7 +640,6 @@ function centerOffset() {
 	return Math.min(raw, 80);
 }
 
-// Update track
 function update(animate = true) {
 	if (animate) lock();
 	track.style.transition = animate ? "transform 0.6s ease" : "none";
@@ -647,7 +652,6 @@ function lock() {
 	unlockTimer = setTimeout(() => (isAnimating = false), TRANSITION_MS + 50);
 }
 
-// Infinite loop handling
 track.addEventListener("transitionend", () => {
 	const total = slides.length;
 	if (index === 0) index = total;
@@ -656,7 +660,6 @@ track.addEventListener("transitionend", () => {
 	isAnimating = false;
 });
 
-// Slide navigation
 function next() {
 	if (!isAnimating) {
 		index++;
@@ -670,7 +673,6 @@ function prev() {
 	}
 }
 
-// Auto scroll
 function startAuto() {
 	stopAuto();
 	autoTimer = setInterval(next, INTERVAL);
@@ -679,7 +681,6 @@ function stopAuto() {
 	clearInterval(autoTimer);
 }
 
-// Buttons
 nextSlide.onclick = () => {
 	stopAuto();
 	next();
@@ -691,10 +692,8 @@ prevSlide.onclick = () => {
 	startAuto();
 };
 
-// Resize
 window.addEventListener("resize", update);
 
-// Initialize
 update();
 startAuto();
 
@@ -702,12 +701,10 @@ startAuto();
  *         Fullscreen        *
  *****************************/
 
-// Get modal elements
 const galleryModalOverlay = document.getElementById("galleryModalOverlay");
 const galleryModalImg = document.getElementById("galleryModalImg");
 const galleryModalClose = document.querySelector(".gallery-modal-close");
 
-// Close modal when clicking close button or overlay
 galleryModalClose.addEventListener("click", () => {
 	galleryModalOverlay.classList.remove("show");
 });
