@@ -646,6 +646,12 @@ ul li::before {
 	animation: popOut 0.25s ease forwards;
 }
 
+.support-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+
 .social-modal a {
 	display: block;
 	margin: 14px 0;
