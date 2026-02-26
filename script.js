@@ -89,7 +89,7 @@ const DEFAULT_TAGS = [
 	"Photographer",
 	"Music Addict",
 	"Femboy",
-	"Cat Girl"
+	"Cat Boy"
 ];
 
 function loadD(key, def) {
