@@ -1,35 +1,69 @@
 "use strict";
 
 const express = require("express");
-const fs      = require("fs");
 const path    = require("path");
 const crypto  = require("crypto");
+const { Pool } = require("pg");
 
-const app       = express();
-const PORT      = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, "data.json");
+const app  = express();
+const PORT = process.env.PORT || 3000;
 
 /* ─────────────────────────────────────────────
-   Middleware
+   PostgreSQL
 ───────────────────────────────────────────── */
-app.use(express.json({ limit: "2mb" }));
-app.use(express.static(path.join(__dirname, "public")));
+const pool = new Pool({
+	user:     process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	host:     process.env.DB_HOST,
+	port:     Number(process.env.DB_PORT) || 6438,
+	database: process.env.DB_NAME,
+	ssl:      { rejectUnauthorized: false }
+});
+
+async function initDB() {
+	await pool.query(`
+		CREATE TABLE IF NOT EXISTS site_data (
+			id   INTEGER PRIMARY KEY DEFAULT 1,
+			data JSONB   NOT NULL,
+			CHECK (id = 1)
+		)
+	`);
+	await pool.query(`
+		INSERT INTO site_data (id, data)
+		VALUES (1, $1::jsonb)
+		ON CONFLICT (id) DO NOTHING
+	`, [JSON.stringify(DEFAULT_DATA)]);
+	console.log("✓ Database ready");
+}
+
+async function readData() {
+	const res = await pool.query("SELECT data FROM site_data WHERE id = 1");
+	const row = res.rows[0]?.data ?? {};
+	return Object.assign({}, DEFAULT_DATA, row);
+}
+
+async function writeData(data) {
+	await pool.query(
+		"UPDATE site_data SET data = $1::jsonb WHERE id = 1",
+		[JSON.stringify(data)]
+	);
+}
 
 /* ─────────────────────────────────────────────
-   Data helpers
+   Default data
 ───────────────────────────────────────────── */
 const DEFAULT_DATA = {
 	password: "neychii",
 	playlist: [
-		{ title: "Despite Everything, It Is Still Me", artist: "LuvBytes404",           src: "./Assets/Audios/audio.mp3",  link: "https://soundcloud.com/luvbytes404/despite-everything-it-is-still-me" },
-		{ title: "Limerence",                          artist: "angelize, ft. Lilycat",  src: "./Assets/Audios/audio3.mp3", link: "https://open.spotify.com/track/5TEOhfxU5KP5lZApP1psga" },
-		{ title: "Kill me with a lie",                 artist: "angelize",               src: "./Assets/Audios/audio4.mp3", link: "https://open.spotify.com/track/6H2egbHEnfpGQgWGTA4icy" },
-		{ title: "under the sky",                      artist: "coco., ft. Lil Chili",   src: "./Assets/Audios/audio6.mp3", link: "https://open.spotify.com/track/1SY9IArHB4QtiX37o4mOg7" },
-		{ title: "Seasons",                            artist: "Alohaii, ft. Shiki Myokino", src: "./Assets/Audios/audio2.mp3", link: "https://soundcloud.com/lonealphamusic/seasons" },
-		{ title: "Tell Me",                            artist: "coco., ft. Lil Chili",   src: "./Assets/Audios/audio7.mp3", link: "https://open.spotify.com/track/14ar0JOH3XfT9AJWRlganR" },
-		{ title: "3edw",                               artist: "angelize",               src: "./Assets/Audios/audio8.mp3", link: "https://open.spotify.com/track/2QPSTJZuLHo3dQSjOVioUf" },
-		{ title: "Looking For Me",                     artist: "Itoguruma, ft. Lil Chili", src: "./Assets/Audios/audio9.mp3", link: "https://open.spotify.com/track/575k01Ql5iqK5aR9kIv0Kw" },
-		{ title: "Hobbies",                            artist: "Aleyna Moon",            src: "./Assets/Audios/audio5.mp3", link: "https://open.spotify.com/track/7evB1jJ0cK4ZYUeVGUDhQf" }
+		{ title: "Despite Everything, It Is Still Me", artist: "LuvBytes404",              src: "./public/public/Assets/Audios/audio.mp3",  link: "https://soundcloud.com/luvbytes404/despite-everything-it-is-still-me" },
+		{ title: "Limerence",                          artist: "angelize, ft. Lilycat",    src: "./public/Assets/Audios/audio3.mp3", link: "https://open.spotify.com/track/5TEOhfxU5KP5lZApP1psga" },
+		{ title: "Kill me with a lie",                 artist: "angelize",                 src: "./public/Assets/Audios/audio4.mp3", link: "https://open.spotify.com/track/6H2egbHEnfpGQgWGTA4icy" },
+		{ title: "under the sky",                      artist: "coco., ft. Lil Chili",     src: "./public/Assets/Audios/audio6.mp3", link: "https://open.spotify.com/track/1SY9IArHB4QtiX37o4mOg7" },
+		{ title: "Seasons",                            artist: "Alohaii, ft. Shiki Myokino", src: "./public/Assets/Audios/audio2.mp3", link: "https://soundcloud.com/lonealphamusic/seasons" },
+		{ title: "Tell Me",                            artist: "coco., ft. Lil Chili",     src: "./public/Assets/Audios/audio7.mp3", link: "https://open.spotify.com/track/14ar0JOH3XfT9AJWRlganR" },
+		{ title: "3edw",                               artist: "angelize",                 src: "./public/Assets/Audios/audio8.mp3", link: "https://open.spotify.com/track/2QPSTJZuLHo3dQSjOVioUf" },
+		{ title: "Looking For Me",                     artist: "Itoguruma, ft. Lil Chili", src: "./public/Assets/Audios/audio9.mp3", link: "https://open.spotify.com/track/575k01Ql5iqK5aR9kIv0Kw" },
+		{ title: "Hobbies",                            artist: "Aleyna Moon",              src: "./public/Assets/Audios/audio5.mp3", link: "https://open.spotify.com/track/7evB1jJ0cK4ZYUeVGUDhQf" }
 	],
 	statuses: [
 		"It is what it is",
@@ -68,34 +102,18 @@ const DEFAULT_DATA = {
 	aboutMe:  null
 };
 
-function readData() {
-	try {
-		const raw = fs.readFileSync(DATA_FILE, "utf8");
-		// Merge with defaults so new fields added in code always exist
-		return Object.assign({}, DEFAULT_DATA, JSON.parse(raw));
-	} catch {
-		return { ...DEFAULT_DATA };
-	}
-}
-
-function writeData(data) {
-	fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf8");
-}
-
-// Bootstrap data.json if it doesn't exist yet
-if (!fs.existsSync(DATA_FILE)) {
-	writeData(DEFAULT_DATA);
-	console.log("✓ Created data.json with defaults");
-}
+/* ─────────────────────────────────────────────
+   Middleware
+───────────────────────────────────────────── */
+app.use(express.json({ limit: "2mb" }));
+app.use(express.static(path.join(__dirname, "public")));
 
 /* ─────────────────────────────────────────────
    Session store  (in-memory, per process)
-   Token → expiry timestamp (ms)
 ───────────────────────────────────────────── */
-const sessions = new Map();
-const SESSION_TTL = 8 * 60 * 60 * 1000; // 8 hours
+const sessions    = new Map();
+const SESSION_TTL = 8 * 60 * 60 * 1000;
 
-// Prune expired sessions every 30 min
 setInterval(() => {
 	const now = Date.now();
 	for (const [token, expiry] of sessions) {
@@ -116,30 +134,32 @@ function requireAuth(req, res, next) {
    Routes
 ───────────────────────────────────────────── */
 
-// GET /api/data  — public, never exposes the password
-app.get("/api/data", (_req, res) => {
-	const { password, ...safe } = readData();
-	res.json(safe);
+app.get("/api/data", async (_req, res) => {
+	try {
+		const { password, ...safe } = await readData();
+		res.json(safe);
+	} catch (e) {
+		res.status(500).json({ error: "DB error" });
+	}
 });
 
-// POST /api/login  — verify password, return session token
-app.post("/api/login", (req, res) => {
+app.post("/api/login", async (req, res) => {
 	const { password } = req.body || {};
 	if (!password) return res.status(400).json({ error: "Missing password" });
-
-	const data = readData();
-	if (password !== data.password) {
-		return res.status(401).json({ error: "Wrong password" });
+	try {
+		const data = await readData();
+		if (password !== data.password) {
+			return res.status(401).json({ error: "Wrong password" });
+		}
+		const token  = crypto.randomBytes(32).toString("hex");
+		const expiry = Date.now() + SESSION_TTL;
+		sessions.set(token, expiry);
+		res.json({ token, expiresAt: expiry });
+	} catch (e) {
+		res.status(500).json({ error: "DB error" });
 	}
-
-	const token  = crypto.randomBytes(32).toString("hex");
-	const expiry = Date.now() + SESSION_TTL;
-	sessions.set(token, expiry);
-
-	res.json({ token, expiresAt: expiry });
 });
 
-// POST /api/logout  — invalidate token
 app.post("/api/logout", (req, res) => {
 	const header = req.headers["authorization"] || "";
 	const token  = header.replace(/^Bearer\s+/i, "").trim();
@@ -147,32 +167,36 @@ app.post("/api/logout", (req, res) => {
 	res.json({ ok: true });
 });
 
-// POST /api/data  — protected, save everything except password
-app.post("/api/data", requireAuth, (req, res) => {
-	const current = readData();
-	// Strip any attempt to overwrite password through this endpoint
-	const { password, ...updates } = req.body || {};
-	const merged = { ...current, ...updates, password: current.password };
-	writeData(merged);
-	res.json({ ok: true });
+app.post("/api/data", requireAuth, async (req, res) => {
+	try {
+		const current = await readData();
+		const { password, ...updates } = req.body || {};
+		const merged = { ...current, ...updates, password: current.password };
+		await writeData(merged);
+		res.json({ ok: true });
+	} catch (e) {
+		res.status(500).json({ error: "DB error" });
+	}
 });
 
-// POST /api/changepassword  — protected
-app.post("/api/changepassword", requireAuth, (req, res) => {
+app.post("/api/changepassword", requireAuth, async (req, res) => {
 	const { currentPassword, newPassword } = req.body || {};
 	if (!newPassword || !newPassword.trim()) {
 		return res.status(400).json({ error: "New password required" });
 	}
-	const data = readData();
-	if (currentPassword !== data.password) {
-		return res.status(401).json({ error: "Current password wrong" });
+	try {
+		const data = await readData();
+		if (currentPassword !== data.password) {
+			return res.status(401).json({ error: "Current password wrong" });
+		}
+		data.password = newPassword.trim();
+		await writeData(data);
+		res.json({ ok: true });
+	} catch (e) {
+		res.status(500).json({ error: "DB error" });
 	}
-	data.password = newPassword.trim();
-	writeData(data);
-	res.json({ ok: true });
 });
 
-// Catch-all: serve index.html for any unmatched route (SPA-friendly)
 app.get("*", (_req, res) => {
 	res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -180,7 +204,14 @@ app.get("*", (_req, res) => {
 /* ─────────────────────────────────────────────
    Start
 ───────────────────────────────────────────── */
-app.listen(PORT, () => {
-	console.log(`\n🐱 JustNeychii server running!`);
-	console.log(`   → http://localhost:${PORT}\n`);
-});
+initDB()
+	.then(() => {
+		app.listen(PORT, () => {
+			console.log(`\n🐱 JustNeychii server running!`);
+			console.log(`   → http://localhost:${PORT}\n`);
+		});
+	})
+	.catch(err => {
+		console.error("❌ Failed to connect to database:", err.message);
+		process.exit(1);
+	});
